@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string>
 #include <iostream>
+#include <string>
 #pragma warning(disable:4996)
 
 using std::cout;
@@ -35,7 +35,7 @@ public:
 		return *this;
 	}
 
-	char* c_str(){
+	const char* c_str() const{
 		return _str;
 	}
 
@@ -94,6 +94,7 @@ public:
 		insert(_size, str);
 	}
 
+	// += 修改左操作数内容
 	String& operator+=(const char& ch){
 		pushBack(ch);
 		return *this;
@@ -189,6 +190,19 @@ public:
 		_size = n;
 		_str[_size] = '\0';
 	}
+	// 查找字符串 返回一个位置
+	size_t find(const char* str){
+		char* start = strstr(_str, str); // 这个函数返回一个指针
+		// 找不到 返回NULL
+		if (start){
+			return start - str; // 返回的是第一次出现的首地址
+		}
+		return npos;
+	}
+
+	// 输出运算符重载函数
+
+
 
 private:
 	char* _str;
@@ -196,10 +210,38 @@ private:
 	size_t _size;
 	//_capacity: 能够存放最大有效字符的个数
 	size_t _capacity;
+	static const size_t npos; //静态成员在类外初始化
 };
+const size_t String::npos = -1;
 
-void test7()
-{
+//需要输出size个字符，不能遇到\0就结束输出
+ostream& operator<<(ostream& _cout, const String& str){
+	for (const auto& ch : str){
+		cout << ch;
+	}
+	return _cout;
+}
+
+//+运算符重载函数： 是非成员函数， 效率低（返回值为值传递），不要频繁使用此接口
+String operator+(const String& str, const char& ch){
+	String tmp(str);
+	tmp += ch;
+	return tmp;
+}
+
+String operator+(const String& str, const char* str2){
+	String tmp(str);
+	tmp += str2;
+	return tmp;
+}
+
+String operator+(const String& str, const String& str2){
+	String tmp(str);
+	tmp += str2;
+	return tmp;
+}
+
+void test7(){
 	String s("1234");
 	s.pushBack('a');
 	cout << s.c_str() << endl;
@@ -218,8 +260,7 @@ void test7()
 	cout << s2.c_str() << endl;
 }
 
-void test8()
-{
+void test8(){
 	String s;
 	s.insert(0, '0'); // 0
 	s.insert(0, 'f'); // f0
@@ -230,8 +271,7 @@ void test8()
 	s.insert(3, 'g');  //e9fg01
 }
 
-void test9()
-{
+void test9(){
 	String s("5678");
 	s.insert(0, "1234");
 	cout << s.c_str() << endl;
@@ -241,8 +281,7 @@ void test9()
 	cout << s.c_str() << endl;
 }
 
-void test10()
-{
+void test10(){
 	String s("0123456789abcdefgh");
 	cout << s.c_str() << endl;
 	s.erase(5, 5);  //01234abcedfgh
@@ -255,8 +294,7 @@ void test10()
 	cout << s.c_str() << endl;
 }
 
-void test11()
-{
+void test11(){
 	String s("1111");
 	cout << s.c_str() << endl;
 	//增容 + 赋值 + 修改size
@@ -269,4 +307,36 @@ void test11()
 	//赋值 + 修改
 	s.resize(8, 'c');  //1111abcc
 
+}
+void test12(){
+	String str("0123456789");
+	size_t pos = str.find("456");// 返回4
+	pos = str.find("abc");// 找不到
+}
+void test13(){
+	String s("123");
+	cout << s << endl;
+	string s2("123");
+	cout << s2 << endl;
+	s2.resize(10);
+	s.resize(10);
+	cout << s2 << "结束" << endl; // 123与结束之间有空格
+	cout << s << "结束" << endl; // 没有空格, '123结束'
+}
+
+void test14()
+{
+	// 拼接
+	String s1("123");
+	String s2("456");
+	String ret = s1 + 'a';
+	cout << s1 << endl;
+	cout << ret << endl;
+	ret = s1 + "abc";
+	cout << s1 << endl;
+	cout << ret << endl;
+	ret = s1 + s2;
+	cout << s1 << endl;
+	cout << s2 << endl;
+	cout << ret << endl;
 }
